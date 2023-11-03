@@ -7,31 +7,37 @@
   "macros":[
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 100},
+      {"action": "delay", "duration": 50},
+      {"action": "tap", "keycodes": ["ENT"]},
+      {"action": "up", "keycodes": ["LALT"]}
+    ],
+    [
+      {"action": "down", "keycodes": ["LALT"]},
+      {"action": "delay", "duration": 50},
       {"action": "tap", "keycodes": ["1"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 100},
+      {"action": "delay", "duration": 50},
       {"action": "tap", "keycodes": ["2"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 100},
+      {"action": "delay", "duration": 50},
       {"action": "tap", "keycodes": ["3"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 100},
+      {"action": "delay", "duration": 50},
       {"action": "tap", "keycodes": ["4"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 100},
+      {"action": "delay", "duration": 50},
       {"action": "tap", "keycodes": ["5"]},
       {"action": "up", "keycodes": ["LALT"]}
     ]
@@ -65,11 +71,11 @@
     ],
     [
       "KC_NO",
-      "QK_MACRO_0",
       "QK_MACRO_1",
       "QK_MACRO_2",
       "QK_MACRO_3",
       "QK_MACRO_4",
+      "QK_MACRO_5",
       "KC_NO",
       "KC_1",
       "KC_2",
