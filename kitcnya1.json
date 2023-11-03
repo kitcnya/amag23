@@ -7,31 +7,31 @@
   "macros":[
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 350},
+      {"action": "delay", "duration": 100},
       {"action": "tap", "keycodes": ["1"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 350},
+      {"action": "delay", "duration": 100},
       {"action": "tap", "keycodes": ["2"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 350},
+      {"action": "delay", "duration": 100},
       {"action": "tap", "keycodes": ["3"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 350},
+      {"action": "delay", "duration": 100},
       {"action": "tap", "keycodes": ["4"]},
       {"action": "up", "keycodes": ["LALT"]}
     ],
     [
       {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 350},
+      {"action": "delay", "duration": 100},
       {"action": "tap", "keycodes": ["5"]},
       {"action": "up", "keycodes": ["LALT"]}
     ]
