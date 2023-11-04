@@ -46,12 +46,12 @@
   "layers": [
     [
       "KC_ESC",
-      "TD(TD_B_M)",
-      "TD(TD_L_C)",
-      "TD(TD_G_U)",
-      "TD(TD_Y_O)",
+      "KC_F21",
+      "KC_F22",
+      "KC_F23",
+      "KC_F24",
       "LALT_T(KC_ENT)",
-      "TD(TD_J_V)",
+      "KC_F20",
       "KC_Q",
       "KC_E",
       "KC_R",
