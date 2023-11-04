@@ -1,5 +1,3 @@
-#include QMK_KEYBOARD_H
-
 /* tap dance declarations */
 enum {
     TD_L_C,
@@ -17,3 +15,5 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_B_M] = ACTION_TAP_DANCE_DOUBLE(KC_B, KC_M),
     [TD_J_V] = ACTION_TAP_DANCE_DOUBLE(KC_J, KC_V),
 };
+
+#include QMK_KEYBOARD_H
