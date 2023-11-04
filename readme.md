@@ -21,3 +21,9 @@ because custom key codes could not be defined.
 Currently, I am trying out a program that directly processes key codes
 using the `process_record_user()` function for existing key codes
 such as F20, F21, ... and so on that are not in use.
+
+- F20 would be for 'J' key for primary use and 'V' key for secondary use also,
+- F21 would be for 'B' key for primary use and 'M' key for secondary use also,
+- F22 would be for 'L' key for primary use and 'C' key for secondary use also,
+- F23 would be for 'G' key for primary use and 'U' key for secondary use also,
+- F24 would be for 'Y' key for primary use and 'O' key for secondary use also.
