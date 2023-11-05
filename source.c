@@ -1,4 +1,23 @@
+/*
+ * Koolertron AMAG23 custimizations
+ * Copyright and License Terms are pending, 2023, kitcnya@outlook.com
+ */
+
 #include QMK_KEYBOARD_H
+
+enum custom_keycodes {
+	CKC_NO = SAFE_RANGE,
+	CKC_ALT_1,
+	CKC_ALT_2,
+	CKC_ALT_3,
+	CKC_ALT_4,
+	CKC_ALT_5,
+	CKC_J_V,
+	CKC_B_M,
+	CKC_L_C,
+	CKC_G_U,
+	CKC_Y_O,
+};
 
 /*
  * kc is pressed then released with in the term:
