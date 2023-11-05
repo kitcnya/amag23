@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include "print.h"
 
 /*
  * kc is pressed then released with in the term:
@@ -87,6 +88,7 @@ safe_unregister_kc2(struct tap_or_hold_def *th)
 static void
 process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 {
+	print("hello");
 	if (record->event.pressed) {
 		if (th->pending) {
 			/* kc repressed with in the term */
