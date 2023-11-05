@@ -5,21 +5,55 @@
 
 #include QMK_KEYBOARD_H
 
-enum custom_keycodes {
-	CKC_NO = SAFE_RANGE,
-	CKC_ALT_1,
-	CKC_ALT_2,
-	CKC_ALT_3,
-	CKC_ALT_4,
-	CKC_ALT_5,
-	CKC_J_V,
-	CKC_B_M,
-	CKC_L_C,
-	CKC_G_U,
-	CKC_Y_O,
+/*
+ * Special Modifiered Key
+ * ======================
+ */
+
+#define SMK_TIMER	50
+
+#define SMKDEF(pkc, pkc1, pkc2)					\
+	{								\
+		.kc = (pkc),						\
+		.kc1 = (pkc1),						\
+		.kc2 = (pkc2),						\
+		.pending = false,					\
+	}
+
+static struct spc_mod_key_def {
+	uint16_t kc;			/* keycode to sense */
+	uint16_t kc1;			/* modifier keycode */
+	uint16_t kc2;			/* target keycode */
+	uint16_t timer;			/* timer on start */
+	bool pending;			/* pending action exists on timer */
+} spc_mod_key[] = {
+	SMKDEF(KC_F20, KC_LALT, KC_1),
+	SMKDEF(KC_F21, KC_LALT, KC_2),
+	SMKDEF(KC_F22, KC_LALT, KC_3),
+	SMKDEF(KC_F23, KC_LALT, KC_4),
+	SMKDEF(KC_F24, KC_LALT, KC_5),
 };
 
+#define NSMKDEFS	(sizeof(spc_mod_key) / sizeof(struct spc_mod_key_def))
+
+static void
+smk_process_record(struct spc_mod_key_def *smk, keyrecord_t *record)
+{
+	if (record->event.pressed) {
+		register_code(smk->kc1);
+		smk->timer = timer_read();
+		smk->pending = true;
+	} else {
+		if (!smk->pending) unregister_code(smk->kc2);
+		unregister_code(smk->kc1);
+		smk->pending = false;
+	}
+}
+
 /*
+ * Tap or Hold stroking
+ * ====================
+ *
  * kc is pressed then released with in the term:
  *                 TIMER_THRESHOLD
  * ------------------------+-----------------
@@ -52,7 +86,7 @@ enum custom_keycodes {
  * - https://docs.qmk.fm/#/feature_macros
  */
 
-#define TIMER_THRESHOLD	100
+#define TH_TIMER_THRESHOLD	175
 
 #define THDEF(pkc, pkc1, pkc2)						\
 	{								\
@@ -70,11 +104,11 @@ static struct tap_or_hold_def {
 	bool pending;			/* pending action exists on timer */
 	bool kc_press;			/* previous kc press state */
 } tap_or_hold[] = {
-	THDEF(KC_F20, KC_J, KC_V),
-	THDEF(KC_F21, KC_B, KC_M),
-	THDEF(KC_F22, KC_L, KC_C),
-	THDEF(KC_F23, KC_G, KC_U),
-	THDEF(KC_F24, KC_Y, KC_O),
+	THDEF(KC_F13, KC_B, KC_M),
+	THDEF(KC_F14, KC_J, KC_V),
+	THDEF(KC_F15, KC_G, KC_U),
+	THDEF(KC_F16, KC_Y, KC_O),
+	THDEF(KC_F17, KC_L, KC_C),
 };
 
 #define NTHDEFS	(sizeof(tap_or_hold) / sizeof(struct tap_or_hold_def))
@@ -124,16 +158,29 @@ th_process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 	}
 }
 
+/*
+ * sysmtem interfaces
+ */
+
 void
 housekeeping_task_user(void)
 {
 	int i;
+	struct spc_mod_key_def *smk;
 	struct tap_or_hold_def *th;
 
+	for (i = 0; i < NSMKDEFS; i++) {
+		smk = &spc_mod_key[i];
+		if (!smk->pending) continue;
+		if (timer_elapsed(smk->timer) < SMK_TIMER) continue;
+		/* timer activated */
+		register_code(smk->kc2);
+		smk->pending = false;
+	}
 	for (i = 0; i < NTHDEFS; i++) {
 		th = &tap_or_hold[i];
 		if (!th->pending) continue;
-		if (timer_elapsed(th->timer) < TIMER_THRESHOLD) continue;
+		if (timer_elapsed(th->timer) < TH_TIMER_THRESHOLD) continue;
 		/* timer activated */
 		if (th->kc_press) {
 			th_safe_register_kc2(th);
@@ -148,8 +195,15 @@ bool
 process_record_user(uint16_t keycode, keyrecord_t *record)
 {
 	int i;
+	struct spc_mod_key_def *smk;
 	struct tap_or_hold_def *th;
 
+	for (i = 0; i < NSMKDEFS; i++) {
+		smk = &spc_mod_key[i];
+		if (keycode != smk->kc) continue;
+		smk_process_record(smk, record);
+		return false;
+	}
 	for (i = 0; i < NTHDEFS; i++) {
 		th = &tap_or_hold[i];
 		if (keycode != th->kc) continue;
