@@ -4,44 +4,6 @@
   "documentation": "\"This file is a QMK Configurator export. You can import this at <https://config.qmk.fm>. It can also be used directly with QMK's source code.\n\nTo setup your QMK environment check out the tutorial: <https://docs.qmk.fm/#/newbs>\n\nYou can convert this file to a keymap.c using this command: `qmk json2c {keymap}`\n\nYou can compile this keymap using this command: `qmk compile {keymap}`\"\n",
   "keyboard": "amag23",
   "keymap": "kitcnya",
-  "macros":[
-    [
-      {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 50},
-      {"action": "tap", "keycodes": ["ENT"]},
-      {"action": "up", "keycodes": ["LALT"]}
-    ],
-    [
-      {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 50},
-      {"action": "tap", "keycodes": ["1"]},
-      {"action": "up", "keycodes": ["LALT"]}
-    ],
-    [
-      {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 50},
-      {"action": "tap", "keycodes": ["2"]},
-      {"action": "up", "keycodes": ["LALT"]}
-    ],
-    [
-      {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 50},
-      {"action": "tap", "keycodes": ["3"]},
-      {"action": "up", "keycodes": ["LALT"]}
-    ],
-    [
-      {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 50},
-      {"action": "tap", "keycodes": ["4"]},
-      {"action": "up", "keycodes": ["LALT"]}
-    ],
-    [
-      {"action": "down", "keycodes": ["LALT"]},
-      {"action": "delay", "duration": 50},
-      {"action": "tap", "keycodes": ["5"]},
-      {"action": "up", "keycodes": ["LALT"]}
-    ]
-  ],
   "layout": "LAYOUT",
   "layers": [
     [
@@ -71,11 +33,11 @@
     ],
     [
       "KC_NO",
-      "QK_MACRO_1",
-      "QK_MACRO_2",
-      "QK_MACRO_3",
-      "QK_MACRO_4",
-      "QK_MACRO_5",
+      "KC_F11",
+      "KC_F12",
+      "KC_F13",
+      "KC_F14",
+      "KC_F15",
       "KC_NO",
       "KC_1",
       "KC_2",
