@@ -36,11 +36,11 @@
 
 #define TIMER_THRESHOLD	100
 
-#define THDEF(kc, kc1, kc2)						\
+#define THDEF(pkc, pkc1, pkc2)						\
 	{								\
-		.kc = (kc),						\
-		.kc1 = (kc1),						\
-		.kc2 = (kc2),						\
+		.kc = (pkc),						\
+		.kc1 = (pkc1),						\
+		.kc2 = (pkc2),						\
 		.pending = false,					\
 	}
 
@@ -62,46 +62,46 @@ static struct tap_or_hold_def {
 #define NTHDEFS	(sizeof(tap_or_hold) / sizeof(struct tap_or_hold_def))
 
 static void
-safe_register_kc1(struct tap_or_hold_def *th)
+th_safe_register_kc1(struct tap_or_hold_def *th)
 {
 	if (th->kc1 != KC_NO) register_code(th->kc1);
 }
 
 static void
-safe_unregister_kc1(struct tap_or_hold_def *th)
+th_safe_unregister_kc1(struct tap_or_hold_def *th)
 {
 	if (th->kc1 != KC_NO) unregister_code(th->kc1);
 }
 
 static void
-safe_register_kc2(struct tap_or_hold_def *th)
+th_safe_register_kc2(struct tap_or_hold_def *th)
 {
 	if (th->kc2 != KC_NO) register_code(th->kc2);
 }
 
 static void
-safe_unregister_kc2(struct tap_or_hold_def *th)
+th_safe_unregister_kc2(struct tap_or_hold_def *th)
 {
 	if (th->kc2 != KC_NO) unregister_code(th->kc2);
 }
 
 static void
-process_record(struct tap_or_hold_def *th, keyrecord_t *record)
+th_process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 {
 	print("hello");
 	if (record->event.pressed) {
 		if (th->pending) {
 			/* kc repressed with in the term */
-			safe_unregister_kc1(th);
+			th_safe_unregister_kc1(th);
 		}
 		th->timer = timer_read();
 		th->pending = true;
 		th->kc_press = true;
 	} else {
 		if (th->pending) {
-			safe_register_kc1(th);
+			th_safe_register_kc1(th);
 		} else {
-			safe_unregister_kc2(th);
+			th_safe_unregister_kc2(th);
 		}
 		th->kc_press = false;
 	}
@@ -116,12 +116,12 @@ housekeeping_task_user(void)
 	for (i = 0; i < NTHDEFS; i++) {
 		th = &tap_or_hold[i];
 		if (!th->pending) continue;
-		if (timer_elapsed(th->timer) < TIMER_THRESOLD) continue;
+		if (timer_elapsed(th->timer) < TIMER_THRESHOLD) continue;
 		/* timer activated */
 		if (th->kc_press) {
-			safe_register_kc2(th);
+			th_safe_register_kc2(th);
 		} else {
-			safe_unregister_kc1(th);
+			th_safe_unregister_kc1(th);
 		}
 		th->pending = false;
 	}
@@ -136,7 +136,7 @@ process_record_user(uint16_t keycode, keyrecord_t *record)
 	for (i = 0; i < NTHDEFS; i++) {
 		th = &tap_or_hold[i];
 		if (keycode != th->kc) continue;
-		process_record(th, record);
+		th_process_record(th, record);
 		return false;
 	}
 	return true;
