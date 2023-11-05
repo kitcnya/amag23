@@ -47,3 +47,5 @@ jobs:
           *.hex
           *.bin
           *.uf2
+          *.c
+          *.h
