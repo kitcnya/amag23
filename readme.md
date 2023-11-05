@@ -7,7 +7,7 @@
 ## How to see my keymap
 
 You can use the site [QMK Configurator](https://config.qmk.fm/#/amag23/LAYOUT)
-with my [kitcnya1.json](https://raw.githubusercontent.com/kitcnya/amag23/master/kitcnya1.json) file.
+with my [kitcnya.json](https://raw.githubusercontent.com/kitcnya/amag23/master/kitcnya.json) file.
 
 ## Current status
 
