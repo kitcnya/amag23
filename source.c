@@ -1,6 +1,8 @@
 #include QMK_KEYBOARD_H
 #include "print.h"
 
+#error "This is an error!!!"
+
 /*
  * kc is pressed then released with in the term:
  *                 TIMER_THRESHOLD
