@@ -6,6 +6,7 @@ on:
       - '**.c'
       - '**.h'
       - '**.mk'
+- workflow_dispatch
 
 jobs:
   build:
