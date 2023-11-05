@@ -16,7 +16,7 @@ jobs:
       matrix:
 # List of keymap json files to build
         file:
-        - kitcnya1.json
+        - kitcnya.json
 # End of json file list
 
     steps:
@@ -47,5 +47,3 @@ jobs:
           *.hex
           *.bin
           *.uf2
-          *.c
-          *.h
