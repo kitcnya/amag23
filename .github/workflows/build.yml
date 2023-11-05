@@ -1,12 +1,12 @@
 name: Build QMK firmware
 on:
+- workflow_dispatch
 - push:
     paths:
       - '**.json'
       - '**.c'
       - '**.h'
       - '**.mk'
-- workflow_dispatch
 
 jobs:
   build:
