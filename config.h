@@ -3,3 +3,4 @@
  */
 
 #define TAPPING_TOGGLE 1
+#error "error may be occured"
