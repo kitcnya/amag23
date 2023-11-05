@@ -1,18 +1,36 @@
 /*
- * Koolertron AMAG23 custimizations
+ * Koolertron AMAG23 customizations
  * Copyright and License Terms are pending, 2023, kitcnya@outlook.com
  */
 
 #include QMK_KEYBOARD_H
 
 /*
- * Special Modifiered Key
+ * Simulated Modified key
  * ======================
+ *
+ * kc is pressed then released after the term:
+ *           TIMER
+ * ------------+-----------------
+ * == kc ======|=========
+ * == kc1 =====|=========
+ *             |== kc2 ==
+ * ------------+-----------------
+ *             |        `- kc2 and kc1 release by real kc release
+ *             `- kc2 press by timer
+ *
+ * kc is pressed then released with in the term:
+ *           TIMER
+ * ------------+-----------------
+ * == kc ===   |
+ * == kc1 ==   |
+ * ------------+-----------------
+ *         `- kc1 release by real kc release
  */
 
-#define SMK_TIMER	50
+#define SM_TIMER	50
 
-#define SMKDEF(pkc, pkc1, pkc2)					\
+#define SMDEF(pkc, pkc1, pkc2)						\
 	{								\
 		.kc = (pkc),						\
 		.kc1 = (pkc1),						\
@@ -20,33 +38,33 @@
 		.pending = false,					\
 	}
 
-static struct spc_mod_key_def {
+static struct sim_mod_key_def {
 	uint16_t kc;			/* keycode to sense */
 	uint16_t kc1;			/* modifier keycode */
 	uint16_t kc2;			/* target keycode */
 	uint16_t timer;			/* timer on start */
 	bool pending;			/* pending action exists on timer */
-} spc_mod_key[] = {
-	SMKDEF(KC_F20, KC_LALT, KC_1),
-	SMKDEF(KC_F21, KC_LALT, KC_2),
-	SMKDEF(KC_F22, KC_LALT, KC_3),
-	SMKDEF(KC_F23, KC_LALT, KC_4),
-	SMKDEF(KC_F24, KC_LALT, KC_5),
+} sim_mod_key[] = {
+	SMDEF(KC_F20, KC_LALT, KC_1),
+	SMDEF(KC_F21, KC_LALT, KC_2),
+	SMDEF(KC_F22, KC_LALT, KC_3),
+	SMDEF(KC_F23, KC_LALT, KC_4),
+	SMDEF(KC_F24, KC_LALT, KC_5),
 };
 
-#define NSMKDEFS	(sizeof(spc_mod_key) / sizeof(struct spc_mod_key_def))
+#define NSMDEFS	(sizeof(sim_mod_key) / sizeof(struct sim_mod_key_def))
 
 static void
-smk_process_record(struct spc_mod_key_def *smk, keyrecord_t *record)
+sm_process_record(struct sim_mod_key_def *sm, keyrecord_t *record)
 {
 	if (record->event.pressed) {
-		register_code(smk->kc1);
-		smk->timer = timer_read();
-		smk->pending = true;
+		register_code(sm->kc1);
+		sm->timer = timer_read();
+		sm->pending = true;
 	} else {
-		if (!smk->pending) unregister_code(smk->kc2);
-		unregister_code(smk->kc1);
-		smk->pending = false;
+		if (!sm->pending) unregister_code(sm->kc2);
+		unregister_code(sm->kc1);
+		sm->pending = false;
 	}
 }
 
@@ -55,7 +73,7 @@ smk_process_record(struct spc_mod_key_def *smk, keyrecord_t *record)
  * ====================
  *
  * kc is pressed then released with in the term:
- *                 TIMER_THRESHOLD
+ *                       TIMER
  * ------------------------+-----------------
  * == kc ==                |
  *        == kc1 ==========|
@@ -64,7 +82,7 @@ smk_process_record(struct spc_mod_key_def *smk, keyrecord_t *record)
  *        `- kc1 press by real kc release
  *
  * kc is pressed then released after the term:
- *                 TIMER_THRESHOLD
+ *                       TIMER
  * ------------------------+-----------------
  * == kc ==================|=========
  *                         |== kc2 ==
@@ -73,20 +91,16 @@ smk_process_record(struct spc_mod_key_def *smk, keyrecord_t *record)
  *                         `- kc2 press by timer
  *
  * quick retap within the term:
- *                                  TIMER_THRESHOLD (timer updated)
+ *                                        TIMER (updated)
  * ----------------+-------:----------------+---------
- * == kc ==        |== kc ==...             |
- *        == kc1 ==|                        |
+ * == kc ==        |== kc =:...             |
+ *        == kc1 ==|       :                |
  * ----------------+-------:----------------+---------
  *        |        `- kc1 release by real kc repress
  *        `- kc1 press by real kc release
- *
- * see:
- * - https://docs.qmk.fm/#/custom_quantum_functions
- * - https://docs.qmk.fm/#/feature_macros
  */
 
-#define TH_TIMER_THRESHOLD	175
+#define TH_TIMER	175
 
 #define THDEF(pkc, pkc1, pkc2)						\
 	{								\
@@ -160,27 +174,31 @@ th_process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 
 /*
  * sysmtem interfaces
+ *
+ * see:
+ * - https://docs.qmk.fm/#/custom_quantum_functions
+ * - https://docs.qmk.fm/#/feature_macros
  */
 
 void
 housekeeping_task_user(void)
 {
 	int i;
-	struct spc_mod_key_def *smk;
+	struct sim_mod_key_def *sm;
 	struct tap_or_hold_def *th;
 
-	for (i = 0; i < NSMKDEFS; i++) {
-		smk = &spc_mod_key[i];
-		if (!smk->pending) continue;
-		if (timer_elapsed(smk->timer) < SMK_TIMER) continue;
+	for (i = 0; i < NSMDEFS; i++) {
+		sm = &sim_mod_key[i];
+		if (!sm->pending) continue;
+		if (timer_elapsed(sm->timer) < SM_TIMER) continue;
 		/* timer activated */
-		register_code(smk->kc2);
-		smk->pending = false;
+		register_code(sm->kc2);
+		sm->pending = false;
 	}
 	for (i = 0; i < NTHDEFS; i++) {
 		th = &tap_or_hold[i];
 		if (!th->pending) continue;
-		if (timer_elapsed(th->timer) < TH_TIMER_THRESHOLD) continue;
+		if (timer_elapsed(th->timer) < TH_TIMER) continue;
 		/* timer activated */
 		if (th->kc_press) {
 			th_safe_register_kc2(th);
@@ -195,13 +213,13 @@ bool
 process_record_user(uint16_t keycode, keyrecord_t *record)
 {
 	int i;
-	struct spc_mod_key_def *smk;
+	struct sim_mod_key_def *sm;
 	struct tap_or_hold_def *th;
 
-	for (i = 0; i < NSMKDEFS; i++) {
-		smk = &spc_mod_key[i];
-		if (keycode != smk->kc) continue;
-		smk_process_record(smk, record);
+	for (i = 0; i < NSMDEFS; i++) {
+		sm = &sim_mod_key[i];
+		if (keycode != sm->kc) continue;
+		sm_process_record(sm, record);
 		return false;
 	}
 	for (i = 0; i < NTHDEFS; i++) {
