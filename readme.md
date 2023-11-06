@@ -1,29 +1,159 @@
 <!-- -*- mode: markdown; coding: utf-8 -*- -->
 
-# Customization of my Koolertron AMAG23 keyboard
+# Koolertron AMAG23 keyboard
 
 ![Koolertron AMAG23 w/DSA profile keycaps](amag23.png)
 
-## How to see my keymap
+We can use this small keyboard immediately after purchasing it
+by using the included software to define your preferred key layout.
+For this reason, I think many people love using it for PC games.
+For a while, I also used the included software to play games
+such as the PC version of [Genshin Impact](https://genshin.hoyoverse.com/).
+
+In fact, it's comfortable to play the game with this keyboard,
+which has been adjusted to my preferred keymap.
+However, there are some problems, just like:
+
+  - Standard Alt + number combination key definition doesn't work,
+  - Three layers are required to map all functions,
+    resulting in a lot of loss when switching layers, and so on.
+
+The former could be handled by macro definitions,
+but nothing could be done about the latter.
+
+Therefore, while looking for a way to compress keymaps,
+then I learned about [QMK Firmware](https://docs.qmk.fm/), and was inspired by its approach
+to multifunctionality for various compact keyboards,
+so I decided to try QMK.
+
+## Keymap compression approach
+
+To reduce keymap layers, we need to assign multiple functions
+(command characters in games) to a single key.
+QMK tap dance and tap hold features are good options for this.
+Key combination of normal key and layer switching key is very unique.
+
+However, it seems that the use of custom key codes is restricted
+in the github user environment, so tap dance cannot be used,
+and tap hold can only be used in combination with modifier keys
+such as Shift and Ctrl.
+
+Therefore, I decided to rewrite the behavior of existing key codes that are not used.
+I used the following as a reference.
+
+  - [Customizing Functionality](https://docs.qmk.fm/#/custom_quantum_functions)
+  - [Macros](https://docs.qmk.fm/#/feature_macros)
+
+The key codes used are F13, F14,..., F24 function keys.
+I changed these by overriding the `process_record_user()` function.
+
+Note: Defining a macro in a *.json file,
+the `process_record_user()` function will result in a double definition error,
+so I have also implemented the Alt + number function.
+
+## Simulated Modified key
+
+```
+kc is pressed then released after the term:
+          TIMER
+------------+-----------------
+== kc ======|=========
+== kc1 =====|=========
+            |== kc2 ==
+------------+-----------------
+            |        `- kc2 and kc1 release by real kc release
+            `- kc2 press by timer
+
+kc is pressed then released with in the term:
+          TIMER
+------------+-----------------
+== kc ===   |
+== kc1 ==   |
+------------+-----------------
+        `- kc1 release by real kc release
+```
+
+```
+#define SMDEF(pkc, pkc1, pkc2)						\
+	{								\
+		.kc = (pkc),						\
+		.kc1 = (pkc1),						\
+		.kc2 = (pkc2),						\
+		.pending = false,					\
+	}
+
+static struct sim_mod_key_def {
+	uint16_t kc;			/* keycode to sense */
+	uint16_t kc1;			/* modifier keycode */
+	uint16_t kc2;			/* target keycode */
+	uint16_t timer;			/* timer on start */
+	bool pending;			/* pending action exists on timer */
+} sim_mod_key[] = {
+	SMDEF(KC_F20, KC_LALT, KC_1),
+	SMDEF(KC_F21, KC_LALT, KC_2),
+	SMDEF(KC_F22, KC_LALT, KC_3),
+	SMDEF(KC_F23, KC_LALT, KC_4),
+	SMDEF(KC_F24, KC_LALT, KC_5),
+};
+```
+
+## Tap or Hold stroking
+
+```
+kc is pressed then released with in the term:
+                      TIMER
+------------------------+-----------------
+== kc ==                |
+       == kc1 ==========|
+------------------------+-----------------
+       |                `- kc1 release by timer
+       `- kc1 press by real kc release
+
+kc is pressed then released after the term:
+                      TIMER
+------------------------+-----------------
+== kc ==================|=========
+                        |== kc2 ==
+------------------------+-----------------
+                        |        `- kc2 release by real kc release
+                        `- kc2 press by timer
+
+quick retap within the term:
+                                       TIMER (updated)
+----------------+-------:----------------+---------
+== kc ==        |== kc =:...             |
+       == kc1 ==|       :                |
+----------------+-------:----------------+---------
+       |        `- kc1 release by real kc repress
+       `- kc1 press by real kc release
+```
+
+```
+#define THDEF(pkc, pkc1, pkc2)						\
+	{								\
+		.kc = (pkc),						\
+		.kc1 = (pkc1),						\
+		.kc2 = (pkc2),						\
+		.pending = false,					\
+	}
+
+static struct tap_or_hold_def {
+	uint16_t kc;			/* keycode to sense */
+	uint16_t kc1;			/* primary keycode to emit */
+	uint16_t kc2;			/* secondary keycode to emit */
+	uint16_t timer;			/* timer on start */
+	bool pending;			/* pending action exists on timer */
+	bool kc_press;			/* previous kc press state */
+} tap_or_hold[] = {
+	THDEF(KC_F13, KC_B, KC_M),
+	THDEF(KC_F14, KC_J, KC_V),
+	THDEF(KC_F15, KC_G, KC_U),
+	THDEF(KC_F16, KC_Y, KC_O),
+	THDEF(KC_F17, KC_L, KC_C),
+};
+```
+
+## My keymap
 
 You can use the site [QMK Configurator](https://config.qmk.fm/#/amag23/LAYOUT)
 with my [kitcnya.json](https://raw.githubusercontent.com/kitcnya/amag23/master/kitcnya.json) file.
-
-## Current status
-
-I'm trying to customize my Koolertron AMG23 for gaming using QMK.
-In order to gather basic functionality into one layer,
-I am experimenting with a method of sending multiple keycodes with keystroke variations.
-QMK tap dance feature seems to be usable,
-but it turned out that it could not be used in the github userspace environment
-because custom key codes could not be defined.
-
-Currently, I am trying out a program that directly processes key codes
-using the `process_record_user()` function for existing key codes
-such as F20, F21, ... and so on that are not in use.
-
-- F20 would be for 'J' key for primary use and 'V' key for secondary use also,
-- F21 would be for 'B' key for primary use and 'M' key for secondary use also,
-- F22 would be for 'L' key for primary use and 'C' key for secondary use also,
-- F23 would be for 'G' key for primary use and 'U' key for secondary use also,
-- F24 would be for 'Y' key for primary use and 'O' key for secondary use also.
