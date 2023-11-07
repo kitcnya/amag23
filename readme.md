@@ -4,6 +4,14 @@
 
 ![Koolertron AMAG23 w/DSA profile keycaps](amag23.png)
 
+  - [Motivations](#motivations)
+  - [Keymap compression approach](#keymap-compression-approach)
+  - [Simulated Modified key](#simulated-modified-key)
+  - [Tap or Hold stroking](#tap-or-hold-stroking)
+  - [Latest keymap](#latest-keymap)
+
+## Motivations
+
 We can use this small keyboard immediately after purchasing it
 by using the included software to define your preferred key layout.
 For this reason, I think many people love using it for PC games.
@@ -157,7 +165,7 @@ static struct tap_or_hold_def {
 };
 ```
 
-## Keymap
+## Latest keymap
 
 ### Layer 0
 
