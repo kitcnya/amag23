@@ -74,6 +74,8 @@ kc is pressed then released with in the term:
 ```
 
 ```
+#define SM_TIMER	50
+
 #define SMDEF(pkc, pkc1, pkc2)						\
 	{								\
 		.kc = (pkc),						\
@@ -129,6 +131,8 @@ quick retap within the term:
 ```
 
 ```
+#define TH_TIMER	175
+
 #define THDEF(pkc, pkc1, pkc2)						\
 	{								\
 		.kc = (pkc),						\
@@ -153,7 +157,55 @@ static struct tap_or_hold_def {
 };
 ```
 
-## My keymap
+## Keymap
+
+### Layer 0
+
+A or B means tapping key for A, or holding key for B.
+
+```
++------------+--------+--------+--------+--------+-------------+
+|    ESC     | B or M | J or V | G or U | Y or O | ENT or LALT |
++------------+--------+--------+--------+--------+-------------+
+|   L or C   |   Q    |   E    |   R    |   Z    |     TAB     |
++------------+--------+--------+--------+--------+-------------+
+|   MO(1)    |   A    |   W    |   D    |   T    |  P or LSFT  |
++------------+--------+--------+--------+--------+-------------+
+| X or MO(2) |  SPC   |   S    |  LCTL  |          F           |
++------------+--------+--------+--------+----------------------+
+```
+
+### Layer 1
+
+A,B means pressing A followed by B, then releasing them simultaneously.
+
+```
++------------+--------+--------+--------+--------+-------------+
+|            | LALT,1 | LALT,2 | LALT,3 | LALT,4 |   LALT,5    |
++------------+--------+--------+--------+--------+-------------+
+|            |   1    |   2    |   3    |   4    |      5      |
++------------+--------+--------+--------+--------+-------------+
+|    THRU    |        |        |        |        |             |
++------------+--------+--------+--------+--------+-------------+
+|            |        |        |        |       LALT,ENT       |
++------------+--------+--------+--------+----------------------+
+```
+
+### Layer 2
+
+```
++------------+--------+--------+--------+--------+-------------+
+| RGB mode R |  Mod+  |  Hue+  |  Sat+  |  Brt+  |    Eff+     |
++------------+--------+--------+--------+--------+-------------+
+| RGB mode K |  Mod-  |  Hue-  |  Sat-  |  Brt-  |    Eff-     |
++------------+--------+--------+--------+--------+-------------+
+|     F9     |   F1   |   F2   |   F3   |   F4   |     F5      |
++------------+--------+--------+--------+--------+-------------+
+|    THRU    |   F6   |   F7   |   F8   |      RGB Toggle      |
++------------+--------+--------+--------+----------------------+
+```
+
+### Keymap definition
 
 You can use the site [QMK Configurator](https://config.qmk.fm/#/amag23/LAYOUT)
 with my [kitcnya.json](https://raw.githubusercontent.com/kitcnya/amag23/master/kitcnya.json) file.
