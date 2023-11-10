@@ -30,7 +30,8 @@ The former could be handled by macro definitions,
 but nothing could be done about the latter.
 
 Therefore, while looking for a way to compress keymaps,
-then I learned about [QMK Firmware](https://docs.qmk.fm/), and was inspired by its approach
+then I learned about [QMK Firmware](https://docs.qmk.fm/),
+and was inspired by its approach
 to multifunctionality for various compact keyboards,
 so I decided to try QMK.
 
@@ -61,6 +62,19 @@ so I have also implemented the Alt + number function.
 
 ## Simulated Modified key
 
+This is a very simple implementation for a key pressing with modifier key.
+Genshin Impact doesn't seem that
+a generic `LALT(KC_*)` definition is recognized correct key sequence.
+Since It uses that LALT key is used for another special action,
+it might be having special timing to be treated.
+Of course, we can use the macro key sequence to do resolution instead.
+
+This implementaton simulates that
+human being pressing LALT and another generic key.
+Using the timer having a short interval,
+I can press a key with short delayed after pressing a modifier key.
+Typical timings are shown below:
+
 ```
 kc is pressed then released after the term:
           TIMER
@@ -80,6 +94,14 @@ kc is pressed then released with in the term:
 ------------+-----------------
         `- kc1 release by real kc release
 ```
+
+The kc1 will be pressed with actual key kc pressing,
+and will be followed by kc2 pressing by timer with short delay.
+Then, they will be released by actual key kc releasing.
+The second timing is the case of cancellation.
+If the key kc would be released within short time, no  kc2 will be pressed.
+
+The definition for implementation is shown below:
 
 ```
 #define SM_TIMER	50
@@ -107,7 +129,17 @@ static struct sim_mod_key_def {
 };
 ```
 
+Any key combinations are possible, not just the Alt key.
+
 ## Tap or Hold stroking
+
+This is a main implementation to reduce the key usage.
+It makes an actual key can have two  different keys' functionalities.
+The selection of keys will be determined by the timing of target key release.
+The difference in usage is whether we tap the key quickly or press it for a little longer.
+It is very simple.
+The implementation is just a little complex in contrast.
+Typical timings are shown below:
 
 ```
 kc is pressed then released with in the term:
@@ -138,6 +170,27 @@ quick retap within the term:
        `- kc1 press by real kc release
 ```
 
+Since, the selection of key is determined at releasing key,
+nothing to do at the pressing key.
+At that point, all we have to do is start measuring the key press time.
+The single releasing key event will be rebuilt
+into pressing event and releasing event of one desired key
+with the help of timer.
+As you can see from these timing diagrams,
+there are constraints on the functionalities of kc1 and kc2 keys like followings:
+
+  - The both of keys have a little delayed (this is a big problem for gaming),
+  - The key kc1 can be hit repeatedly in a short period of time,
+    but kc2 key cannot, and
+  - The key kc2 can be used for long pressing, but kc1 key cannot.
+
+For the above reasons, these keys should generally be used
+to compress simple command keys such as menu screen calls.
+However, I think the benefits of compressing the number of keys
+to 1/2 of the conventional size are very great.
+
+Finally, the definition for implementation is shown below:
+
 ```
 #define TH_TIMER	175
 
@@ -165,11 +218,11 @@ static struct tap_or_hold_def {
 };
 ```
 
-## Latest keymap
+## Latest keymap for Genshin Impact
 
 ### Layer 0
 
-A or B means tapping key for A, or holding key for B.
+A or B means tapping key for A, or holding (longer tapping) key for B.
 
 ```
 +------------+--------+--------+--------+--------+-------------+
