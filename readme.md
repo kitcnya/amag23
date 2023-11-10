@@ -8,7 +8,7 @@
   - [Keymap compression approach](#keymap-compression-approach)
   - [Simulated Modified key](#simulated-modified-key)
   - [Tap or Hold stroking](#tap-or-hold-stroking)
-  - [Latest keymap](#latest-keymap)
+  - [Latest keymap for Genshin Impact](#latest-keymap-for-genshin-impact)
 
 ## Motivations
 
