@@ -118,11 +118,11 @@ static struct tap_or_hold_def {
 	bool pending;			/* pending action exists on timer */
 	bool kc_press;			/* previous kc press state */
 } tap_or_hold[] = {
-	THDEF(KC_F13, KC_B, KC_M),
-	THDEF(KC_F14, KC_J, KC_V),
-	THDEF(KC_F15, KC_G, KC_U),
-	THDEF(KC_F16, KC_Y, KC_O),
-	THDEF(KC_F17, KC_L, KC_C),
+	THDEF(KC_F13, KC_B, KC_G),
+	THDEF(KC_F14, KC_J, KC_U),
+	THDEF(KC_F15, KC_M, KC_Y),
+	THDEF(KC_F16, KC_C, KC_O),
+	THDEF(KC_F17, KC_L, KC_V),
 };
 
 #define NTHDEFS	(sizeof(tap_or_hold) / sizeof(struct tap_or_hold_def))
