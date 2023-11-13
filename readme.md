@@ -226,9 +226,9 @@ A or B means tapping key for A, or holding (longer tapping) key for B.
 
 ```
 +------------+--------+--------+--------+--------+-------------+
-|    ESC     | B or M | J or V | G or U | Y or O | ENT or LALT |
+|    ESC     | B or G | J or U | M or Y | C or O | ENT or LALT |
 +------------+--------+--------+--------+--------+-------------+
-|   L or C   |   Q    |   E    |   R    |   Z    |     TAB     |
+|   L or V   |   Q    |   E    |   R    |   Z    |     TAB     |
 +------------+--------+--------+--------+--------+-------------+
 |   MO(1)    |   A    |   W    |   D    |   T    |  P or LSFT  |
 +------------+--------+--------+--------+--------+-------------+
