@@ -214,7 +214,9 @@ static struct tap_or_hold_def {
 	THDEF(KC_F14, KC_J, KC_U),
 	THDEF(KC_F15, KC_M, KC_Y),
 	THDEF(KC_F16, KC_C, KC_O),
-	THDEF(KC_F17, KC_L, KC_V),
+	THDEF(KC_F17, KC_ENT, KC_LALT),
+	THDEF(KC_F18, KC_L, KC_V),
+	THDEF(KC_F19, KC_BTN1, KC_P),
 };
 ```
 
@@ -230,7 +232,7 @@ A or B means tapping key for A, or holding (longer tapping) key for B.
 +------------+--------+--------+--------+--------+-------------+
 |   L or V   |   Q    |   E    |   R    |   Z    |     TAB     |
 +------------+--------+--------+--------+--------+-------------+
-|   MO(1)    |   A    |   W    |   D    |   T    |  P or LSFT  |
+|   MO(1)    |   A    |   W    |   D    |   T    |  BTN1 or P  |
 +------------+--------+--------+--------+--------+-------------+
 | X or MO(2) |  SPC   |   S    |  LCTL  |          F           |
 +------------+--------+--------+--------+----------------------+
