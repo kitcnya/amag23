@@ -1,6 +1,8 @@
 /*
  * Koolertron AMAG23 customizations
- * Copyright and License Terms are pending, 2023, kitcnya@outlook.com
+ * Copyright (C) 2023 kitcnya@outlook.com
+ * https://opensource.org/license/mit/
+ * SPDX-License-Identifier: MIT
  */
 
 #include QMK_KEYBOARD_H
@@ -169,7 +171,7 @@ th_process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 }
 
 /*
- * sysmtem interfaces
+ * System Interfaces
  *
  * see:
  * - https://docs.qmk.fm/#/custom_quantum_functions
