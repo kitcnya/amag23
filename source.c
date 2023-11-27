@@ -55,6 +55,13 @@ static struct sim_mod_key_def {
 #define NSMDEFS	(sizeof(sim_mod_key) / sizeof(struct sim_mod_key_def))
 
 static void
+sm_timer_action(struct sim_mod_key_def *sm)
+{
+	register_code(sm->kc2);
+	sm->pending = false;
+}
+
+static void
 sm_process_record(struct sim_mod_key_def *sm, keyrecord_t *record)
 {
 	if (record->event.pressed) {
@@ -130,27 +137,14 @@ static struct tap_or_hold_def {
 #define NTHDEFS	(sizeof(tap_or_hold) / sizeof(struct tap_or_hold_def))
 
 static void
-th_safe_register_kc1(struct tap_or_hold_def *th)
+th_timer_action(struct tap_or_hold_def *th)
 {
-	if (th->kc1 != KC_NO) register_code(th->kc1);
-}
-
-static void
-th_safe_unregister_kc1(struct tap_or_hold_def *th)
-{
-	if (th->kc1 != KC_NO) unregister_code(th->kc1);
-}
-
-static void
-th_safe_register_kc2(struct tap_or_hold_def *th)
-{
-	if (th->kc2 != KC_NO) register_code(th->kc2);
-}
-
-static void
-th_safe_unregister_kc2(struct tap_or_hold_def *th)
-{
-	if (th->kc2 != KC_NO) unregister_code(th->kc2);
+	if (th->kc_press) {
+		register_code(th->kc2);
+	} else {
+		unregister_code(th->kc1);
+	}
+	th->pending = false;
 }
 
 static void
@@ -159,16 +153,16 @@ th_process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 	if (record->event.pressed) {
 		if (th->pending) {
 			/* kc repressed with in the term */
-			th_safe_unregister_kc1(th);
+			unregister_code(th->kc1);
 		}
 		th->timer = timer_read();
 		th->pending = true;
 		th->kc_press = true;
 	} else {
 		if (th->pending) {
-			th_safe_register_kc1(th);
+			register_code(th->kc1);
 		} else {
-			th_safe_unregister_kc2(th);
+			unregister_code(th->kc2);
 		}
 		th->kc_press = false;
 	}
@@ -193,21 +187,13 @@ housekeeping_task_user(void)
 		sm = &sim_mod_key[i];
 		if (!sm->pending) continue;
 		if (timer_elapsed(sm->timer) < SM_TIMER) continue;
-		/* timer activated */
-		register_code(sm->kc2);
-		sm->pending = false;
+		sm_timer_action(sm);
 	}
 	for (i = 0; i < NTHDEFS; i++) {
 		th = &tap_or_hold[i];
 		if (!th->pending) continue;
 		if (timer_elapsed(th->timer) < TH_TIMER) continue;
-		/* timer activated */
-		if (th->kc_press) {
-			th_safe_register_kc2(th);
-		} else {
-			th_safe_unregister_kc1(th);
-		}
-		th->pending = false;
+		th_timer_action(th);
 	}
 }
 
