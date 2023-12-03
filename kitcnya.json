@@ -100,10 +100,10 @@
       "KC_S",
       "KC_E",
       "KC_D",
-      "KC_C",
-      "KC_V",
       "KC_Z",
       "KC_X",
+      "KC_C",
+      "KC_V",
       "KC_TAB"
     ],
     [
@@ -112,24 +112,24 @@
       "KC_NO",
       "KC_NO",
       "KC_NO",
+      "LALT(KC_0)"
+      "KC_NO",
+      "KC_SPC",
       "KC_NO",
       "KC_NO",
-      "KC_1",
-      "KC_2",
-      "KC_3",
-      "KC_4",
-      "KC_5",
+      "KC_NO",
+      "KC_NO",
       "KC_TRNS",
       "KC_NO",
       "KC_NO",
       "KC_NO",
       "KC_NO",
       "KC_NO",
-      "KC_NO",
-      "KC_NO",
-      "KC_NO",
-      "KC_NO",
-      "KC_SPC"
+      "KC_5",
+      "KC_4",
+      "KC_3",
+      "KC_2",
+      "KC_1"
     ]
   ],
   "author": "kitcnya@outlook.com"
