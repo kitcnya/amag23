@@ -188,7 +188,7 @@ Finally, the definition for implementation is shown below:
 #define TH_TIMER	175
 #define TH_HOLD		20
 
-#define THDEF(pkc, pkc1, pkc2)						\
+#define THDEF(pkc, pkc0, pkc1, pkc2)					\
 	{								\
 		.kc = (pkc),						\
 		.kc0 = (pkc0),						\

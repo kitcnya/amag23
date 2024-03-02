@@ -106,7 +106,7 @@ sm_process_record(struct sim_mod_key_def *sm, keyrecord_t *record)
 #define TH_TIMER	175
 #define TH_HOLD		20
 
-#define THDEF(pkc, pkc1, pkc2)						\
+#define THDEF(pkc, pkc0, pkc1, pkc2)					\
 	{								\
 		.kc = (pkc),						\
 		.kc0 = (pkc0),						\
