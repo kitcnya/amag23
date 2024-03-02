@@ -217,6 +217,215 @@ th_process_record(struct tap_or_hold_def *th, keyrecord_t *record)
 }
 
 /*
+ * Keycode Macro
+ */
+
+#define KM_STEP		10
+
+enum keymac_element_type {
+	KM_TYPE_KEY_PRESS,
+	KM_TYPE_KEY_RELEASE,
+	KM_TYPE_KEY_TAP,
+	KM_TYPE_INTERVAL,
+	KM_TYPE_REPEAT,			/* start point to repeat */
+};
+
+struct keymac_element {
+	enum keymac_element_type type;
+	union {
+		uint16_t keycoce;
+		uint16_t interval;
+	};
+};
+
+#define KM_KEY_PRESS(kc)	{ .type = KM_TYPE_KEY_PRESS, .keycode = (kc), }
+#define KM_KEY_RELEASE(kc)	{ .type = KM_TYPE_KEY_RELEASE, .keycode = (kc), }
+#define KM_KEY_TAP(kc)		{ .type = KM_TYPE_KEY_TAP, .keycode = (kc), }
+#define KM_INTERVAL(time)	{ .type = KM_TYPE_INTERVAL, .interval = (time), }
+#define KM_REPEAT(time)		{ .type = KM_TYPE_REPEAT, .interval = (time), }
+
+#define KMSEQ(name)	static struct keymac_element name[]
+
+KMSEQ(machine_gun) = {
+	KM_REPEAT(200),
+	KM_KEY_TAP(KC_BTN1),
+	KM_KEY_INTERVAL(200),
+	KM_KEY_TAP(KC_R),
+	KM_KEY_INTERVAL(200),
+	KM_KEY_TAP(KC_R),
+};
+
+KMSEQ(emacs_arg_arg_org_c_star) = {
+	KM_KEY_PRESS(KC_LCTL),
+	KM_KEY_TAP(KC_U),
+	KM_KEY_TAP(KC_U),
+	KM_KEY_TAP(KC_C),
+	KM_KEY_RELEASE(KC_LCTL),
+	KM_KEY_PRESS(KC_LSFT),
+	KM_KEY_TAP(KC_8),		/* = '*' asterisk */
+	KM_KEY_RELEASE(KC_LSFT),
+};
+
+#define KMDEF(pkc, pmac)						\
+	{								\
+		.kc = (pkc),						\
+		.mac = (pmac),						\
+		.lmac = (sizeof(pmac) / sizeof(struct keymac_element)),	\
+		.pending = false,					\
+		.state = KM_WAITING_PRESS,				\
+	}
+
+enum keymac_state {
+	KM_WAITING_PRESS,
+	KM_WAITING_RELEASE_OR_INTERVAL,
+	KM_WAITING_PRESS_OR_INTERVAL,
+	KM_WAITING_RELEASE,
+};
+
+static struct keymac_def {
+	uint16_t kc;			/* keycode to sense */
+	struct keymac_element *mac;	/* macro sequence */
+	uint8_t lmac;			/* number of elements */
+	uint16_t timeout;		/* timer timeout value */
+	uint16_t timer;			/* timer on start */
+	uint8_t ix;			/* macro element index to process */
+	uint8_t iy;			/* sub index to process */
+	bool pending;			/* pending action exists on timer */
+	enum keymac_state state;
+} keymac[] = {
+	KMDEF(KC_SLCT, machine_gun),
+	KMDEF(KC_F9, emacs_arg_arg_org_c_star),
+};
+
+#define NKMDEFS	(sizeof(keymac) / sizeof(struct keymac_def))
+
+static uint16_t
+km_step(struct keymac_def *km, bool repeat)
+{
+	struct keymac_element *e;
+	uint16_t interval;
+	uint8_t i;
+	bool adv;
+
+	if (km->ix >= km->lmac) {
+		if (!repeat) return 0;
+		for (i = 0; i < km->lmac; i++) {
+			e = &km->mac[i];
+			if (e->type != KM_TYPE_REPEAT) continue;
+			km->ix = i + 1;
+			km->iy = 0;
+			return e->interval;
+		}
+		return 0;		/* unrepeatable */
+	}
+	interval = KM_STEP;
+	adv = true;
+	e = &km->mac[km->ix];
+	switch (e->type) {
+	case KM_TYPE_KEY_PRESS:
+		register_code(e->keycode);
+		break;
+	case KM_TYPE_KEY_RELEASE:
+		unregister_code(e->keycode);
+		break;
+	case KM_TYPE_KEY_TAP:
+		switch (km->iy) {
+		case 0:
+			register_code(e->keycode);
+			adv = false;
+			km->iy++;
+			break;
+		case 1:
+			unregister_code(e->keycode);
+			break;
+		default:
+			break;
+		}
+		break;
+	case KM_TYPE_INTERVAL:
+		interval = e->interval;
+		break;
+	default:
+		break;
+	}
+	if (adv) {
+		km->ix++;
+		km->iy = 0;
+	}
+	return interval;
+}
+
+static void
+km_step_action(struct keymac_def *km, bool pressed)
+{
+	uint16_t interval = km_step(km, pressed);
+
+	if (interval > 0) {
+		if (pressed) {
+			km->state = KM_WAITING_RELEASE_OR_INTERVAL;
+		} else {
+			km->state = KM_WAITING_PRESS_OR_INTERVAL;
+		}
+		km->timeout = interval;
+		km->timer = timer_read();
+		km->pending = true;
+	} else {
+		/* end of sequence */
+		if (pressed) {
+			km->state = KM_WAITING_RELEASE;
+		} else {
+			km->state = KM_WAITING_PRESS;
+		}
+		km->pending = false;
+	}
+}
+
+static void
+km_timer_action(struct keymac_def *km)
+{
+	/* assert(km->pending); */
+
+	if (timer_elapsed(km->timer) < km->timeout) return;
+	switch (km->state) {
+	case KM_WAITING_RELEASE_OR_INTERVAL:
+		km_step_action(km, true);
+		break;
+	case KM_WAITING_PRESS_OR_INTERVAL:
+		km_step_action(km, false);
+		break;
+	default:
+		break;
+	}
+}
+
+static void
+km_process_record(struct keymac_def *km, keyrecord_t *record)
+{
+	switch (km->state) {
+	case KM_WAITING_PRESS:
+		if (!record->event.pressed) break;
+		km->ix = 0;
+		km->iy = 0;
+		km_step_action(km, true);
+		break;
+	case KM_WAITING_RELEASE_OR_INTERVAL:
+		if (record->event.pressed) break;
+		km->state = KM_WAITING_PRESS_OR_INTERVAL;
+		break;
+	case KM_WAITING_PRESS_OR_INTERVAL:
+		if (!record->event.pressed) break;
+		km->state = KM_WAITING_RELEASE_OR_INTERVAL;
+		break;
+	case KM_WAITING_RELEASE:
+		if (record->event.pressed) break;
+		km->state = KM_WAITING_PRESS;
+		break;
+	default:
+		break;
+	}
+}
+
+/*
  * System Interfaces
  *
  * see:
@@ -230,6 +439,7 @@ housekeeping_task_user(void)
 	int i;
 	struct sim_mod_key_def *sm;
 	struct tap_or_hold_def *th;
+	struct keymac_def *km;
 
 	for (i = 0; i < NSMDEFS; i++) {
 		sm = &sim_mod_key[i];
@@ -241,6 +451,11 @@ housekeeping_task_user(void)
 		if (!th->pending) continue;
 		th_timer_action(th);
 	}
+	for (i = 0; i < NKMDEFS; i++) {
+		km = &keymac[i];
+		if (!km->pending) continue;
+		km_timer_action(km);
+	}
 }
 
 bool
@@ -249,6 +464,7 @@ process_record_user(uint16_t keycode, keyrecord_t *record)
 	int i;
 	struct sim_mod_key_def *sm;
 	struct tap_or_hold_def *th;
+	struct keymac_def *km;
 
 	for (i = 0; i < NSMDEFS; i++) {
 		sm = &sim_mod_key[i];
@@ -260,6 +476,12 @@ process_record_user(uint16_t keycode, keyrecord_t *record)
 		th = &tap_or_hold[i];
 		if (keycode != th->kc) continue;
 		th_process_record(th, record);
+		return false;
+	}
+	for (i = 0; i < NKMDEFS; i++) {
+		km = &keymac[i];
+		if (keycode != km->kc) continue;
+		km_process_record(km, record);
 		return false;
 	}
 	return true;
