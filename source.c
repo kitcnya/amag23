@@ -247,11 +247,11 @@ struct keymac_element {
 #define KMSEQ(name)	static struct keymac_element name[]
 
 KMSEQ(machine_gun) = {
-	KM_REPEAT(150),
+	KM_REPEAT(100),
 	KM_KEY_TAP(KC_BTN1),
 	KM_INTERVAL(60),
 	KM_KEY_TAP(KC_R),
-	KM_INTERVAL(90),
+	KM_INTERVAL(100),
 	KM_KEY_TAP(KC_R),
 };
 
