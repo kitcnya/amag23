@@ -164,7 +164,7 @@ kc is pressed then released after the term:
 ```
 
 Since, the selection of key is determined at releasing key,
-nothing to do at the pressing key.
+nothing to do at the pressing key (excluding modifier key kc0).
 At that point, all we have to do is start measuring the key press time.
 The single releasing key event will be rebuilt
 into pressing event and releasing event of one desired key
@@ -172,9 +172,7 @@ with the help of timer.
 As you can see from these timing diagrams,
 there are constraints on the functionalities of kc1 and kc2 keys like followings:
 
-  - The both of keys have a little delayed (this is a big problem for gaming),
-  - The key kc1 can be hit repeatedly in a short period of time,
-    but kc2 key cannot, and
+  - The both of keys have a little delayed (this is a big problem for gaming), and
   - The key kc2 can be used for long pressing, but kc1 key cannot.
 
 For the above reasons, these keys should generally be used
