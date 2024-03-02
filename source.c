@@ -249,8 +249,9 @@ struct keymac_element {
 KMSEQ(machine_gun) = {
 	KM_REPEAT(150),
 	KM_KEY_TAP(KC_BTN1),
-	KM_INTERVAL(100),
+	KM_INTERVAL(50),
 	KM_KEY_TAP(KC_R),
+	KM_INTERVAL(30),
 	KM_KEY_TAP(KC_R),
 };
 
