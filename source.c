@@ -233,7 +233,7 @@ enum keymac_element_type {
 struct keymac_element {
 	enum keymac_element_type type;
 	union {
-		uint16_t keycoce;
+		uint16_t keycode;
 		uint16_t interval;
 	};
 };
@@ -249,9 +249,9 @@ struct keymac_element {
 KMSEQ(machine_gun) = {
 	KM_REPEAT(200),
 	KM_KEY_TAP(KC_BTN1),
-	KM_KEY_INTERVAL(200),
+	KM_INTERVAL(200),
 	KM_KEY_TAP(KC_R),
-	KM_KEY_INTERVAL(200),
+	KM_INTERVAL(200),
 	KM_KEY_TAP(KC_R),
 };
 
