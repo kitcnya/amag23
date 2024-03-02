@@ -77,22 +77,22 @@ Typical timings are shown below:
 
 ```
 kc is pressed then released after the term:
-          TIMER
+     TIMER -.
 ------------+-----------------
-== kc ======|=========
-== kc1 =====|=========
-            |== kc2 ==
-------------+-----------------
-            |        `- kc2 and kc1 release by real kc release
+== kc ======|=========|
+== kc1 =====|=========|
+            |== kc2 ==|
+------------+---------+-------
+            |         `- kc2 and kc1 release by real kc release
             `- kc2 press by timer
 
 kc is pressed then released with in the term:
-          TIMER
+     TIMER -.
 ------------+-----------------
-== kc ===   |
-== kc1 ==   |
-------------+-----------------
-        `- kc1 release by real kc release
+== kc ===|  |
+== kc1 ==|  |
+---------+--+-----------------
+         `- kc1 release by real kc release
 ```
 
 The kc1 will be pressed with actual key kc pressing,
@@ -143,31 +143,24 @@ Typical timings are shown below:
 
 ```
 kc is pressed then released with in the term:
-                      TIMER
-------------------------+-----------------
-== kc ==                |
-       == kc1 ==========|
-------------------------+-----------------
-       |                `- kc1 release by timer
-       `- kc1 press by real kc release
+ WATCH TIMER -.   .- HOLD TIMER (start @ kc release)
+--------------+---+---------------
+== kc ==|     |   |  (quick pressed kc within hold time will be ignored)
+== kc0 =|=========|
+        |== kc1 ==|
+--------+-----+---+---------------
+        |         `- kc1 and kc0 release by hold timer
+        `- kc1 press by kc release
 
 kc is pressed then released after the term:
-                      TIMER
-------------------------+-----------------
-== kc ==================|=========
-                        |== kc2 ==
-------------------------+-----------------
-                        |        `- kc2 release by real kc release
-                        `- kc2 press by timer
-
-quick retap within the term:
-                                       TIMER (updated)
-----------------+-------:----------------+---------
-== kc ==        |== kc =:...             |
-       == kc1 ==|       :                |
-----------------+-------:----------------+---------
-       |        `- kc1 release by real kc repress
-       `- kc1 press by real kc release
+ WATCH TIMER -.
+--------------+-------------------
+== kc ========|============|
+== kc0 =======|============|
+              |== kc2 =====|  (kc2 can be null keycode)
+--------------+------------+------
+              |            `- kc2 and kc0 release by kc release
+              `- kc2 press by watch timer
 ```
 
 Since, the selection of key is determined at releasing key,
@@ -193,30 +186,43 @@ Finally, the definition for implementation is shown below:
 
 ```
 #define TH_TIMER	175
+#define TH_HOLD		20
 
 #define THDEF(pkc, pkc1, pkc2)						\
 	{								\
 		.kc = (pkc),						\
+		.kc0 = (pkc0),						\
 		.kc1 = (pkc1),						\
 		.kc2 = (pkc2),						\
-		.pending = false,					\
+		.state = TH_WAITING_PRESS,				\
 	}
+
+enum tap_or_hold_state {
+	TH_WAITING_PRESS,
+	TH_WAITING_RELEASE_OR_T1,
+	TH_WAITING_PRESS_OR_T2,
+	TH_WAITING_RELEASE_OR_T2,
+	TH_WAITING_RELEASE_FOR_KC1,
+	TH_WAITING_RELEASE_FOR_KC2,
+};
 
 static struct tap_or_hold_def {
 	uint16_t kc;			/* keycode to sense */
+	uint16_t kc0;			/* modifier keycode to emit */
 	uint16_t kc1;			/* primary keycode to emit */
 	uint16_t kc2;			/* secondary keycode to emit */
 	uint16_t timer;			/* timer on start */
 	bool pending;			/* pending action exists on timer */
-	bool kc_press;			/* previous kc press state */
+	enum tap_or_holding_state state;
 } tap_or_hold[] = {
-	THDEF(KC_F13, KC_B, KC_LALT),
-	THDEF(KC_F14, KC_L, KC_O),
-	THDEF(KC_F15, KC_M, KC_Y),
-	THDEF(KC_F16, KC_C, KC_G),
-	THDEF(KC_F17, KC_J, KC_U),
-	THDEF(KC_F18, KC_V, KC_V),
-	THDEF(KC_F19, KC_BTN1, KC_BTN1),
+	THDEF(KC_EXEC, 0, KC_F, KC_BTN1),
+	THDEF(KC_F13, 0, KC_B, KC_P),
+	THDEF(KC_F14, 0, KC_L, KC_O),
+	THDEF(KC_F15, 0, KC_M, KC_Y),
+	THDEF(KC_F16, 0, KC_C, KC_G),
+	THDEF(KC_F17, 0, KC_J, KC_U),
+	THDEF(KC_F18, 0, KC_V, KC_V),
+	THDEF(KC_F19, KC_LALT, KC_ENT, 0),
 };
 ```
 
@@ -227,15 +233,16 @@ static struct tap_or_hold_def {
 A or B means tapping key for A, or holding (longer tapping) key for B.
 
 ```
-+------------+-----------+--------+--------+--------+--------+
-|    ESC     | B or LALT | L or O | M or Y | C or G | J or U |
-+------------+-----------+--------+--------+--------+--------+
-|    TAB     |     Q     |   E    |   R    |   Z    |   V    |
-+------------+-----------+--------+--------+--------+--------+
-| ENT or MO1 |     A     |   W    |   D    |   T    |  BTN1  |
-+------------+-----------+--------+--------+--------+--------+
-|  X or MO2  |    SPC    |   S    |  LCTL  |        F        |
-+------------+-----------+--------+--------+-----------------+
++------------+--------+--------+--------+--------+--------+
+|    ESC     | B or P | L or O | M or Y | C or G | J or U |
++------------+--------+--------+--------+--------+--------+
+|    TAB     |   Q    |   E    |   R    |   Z    |   V    |
++------------+--------+--------+--------+--------+--------+
+| ENT or MO1 |   A    |   W    |   D    |   T    |  func  |
++------------+--------+--------+--------+--------+--------+
+|  X or MO2  |  SPC   |   S    |  LCTL  |    F or BTN1    |
++------------+--------+--------+--------+-----------------+
+(func = LALT,ENT or LALT)
 ```
 
 ### Layer 1
@@ -243,29 +250,30 @@ A or B means tapping key for A, or holding (longer tapping) key for B.
 A,B means pressing A followed by B, then releasing them simultaneously.
 
 ```
-+------------+-----------+--------+--------+--------+--------+
-|     Up     |  LALT,1   | LALT,2 | LALT,3 | LALT,4 | LALT,5 |
-+------------+-----------+--------+--------+--------+--------+
-|    Down    |     1     |   2    |   3    |   4    |   5    |
-+------------+-----------+--------+--------+--------+--------+
-|    THRU    |     6     |   7    |   8    |   9    |   0    |
-+------------+-----------+--------+--------+--------+--------+
-|            |    BSP    |  Left  | Right  |    LALT,ENT     |
-+------------+-----------+--------+--------+-----------------+
++------------+--------+--------+--------+--------+--------+
+|     Up     | LALT,1 | LALT,2 | LALT,3 | LALT,4 | LALT,5 |
++------------+--------+--------+--------+--------+--------+
+|    Down    |    1   |   2    |   3    |   4    |   5    |
++------------+--------+--------+--------+--------+--------+
+|    THRU    |    6   |   7    |   8    |   9    |   0    |
++------------+--------+--------+--------+--------+--------+
+|            |   BSP  |  Left  | Right  |     special     |
++------------+--------+--------+--------+-----------------+
+(special = not implemented yet...)
 ```
 
 ### Layer 2
 
 ```
-+------------+-----------+--------+--------+--------+--------+
-| RGB mode R |   Mod+    |  Hue+  |  Sat+  |  Brt+  |  Eff+  |
-+------------+-----------+--------+--------+--------+--------+
-| RGB mode K |   Mod-    |  Hue-  |  Sat-  |  Brt-  |  Eff-  |
-+------------+-----------+--------+--------+--------+--------+
-|     F9     |    F1     |   F2   |   F3   |   F4   |   F5   |
-+------------+-----------+--------+--------+--------+--------+
-|    THRU    |    F6     |   F7   |   F8   |    RGB Toggle   |
-+------------+-----------+--------+--------+-----------------+
++------------+--------+--------+--------+--------+--------+
+| RGB mode R |  Mod+  |  Hue+  |  Sat+  |  Brt+  |  Eff+  |
++------------+--------+--------+--------+--------+--------+
+| RGB mode K |  Mod-  |  Hue-  |  Sat-  |  Brt-  |  Eff-  |
++------------+--------+--------+--------+--------+--------+
+|     F9     |   F1   |   F2   |   F3   |   F4   |   F5   |
++------------+--------+--------+--------+--------+--------+
+|    THRU    |   F6   |   F7   |   F8   |    RGB Toggle   |
++------------+--------+--------+--------+-----------------+
 ```
 
 ### Keymap definition

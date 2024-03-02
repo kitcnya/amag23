@@ -29,7 +29,7 @@
       "KC_SPC",
       "KC_S",
       "KC_LCTL",
-      "KC_F"
+      "KC_EXEC"
     ],
     [
       "KC_UP",
@@ -54,7 +54,7 @@
       "KC_BSPC",
       "KC_LEFT",
       "KC_RGHT",
-      "LALT(KC_ENT)"
+      "KC_SLCT"
     ],
     [
       "RGB_M_R",
