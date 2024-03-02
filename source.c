@@ -131,7 +131,7 @@ static struct tap_or_hold_def {
 	uint16_t kc2;			/* secondary keycode to emit */
 	uint16_t timer;			/* timer on start */
 	bool pending;			/* pending action exists on timer */
-	enum tap_or_hold_state state;
+	enum tap_or_holding_state state;
 } tap_or_hold[] = {
 	THDEF(KC_F12, 0, KC_F, KC_BTN1),
 	THDEF(KC_F13, 0, KC_B, KC_P),
