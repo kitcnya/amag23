@@ -133,7 +133,7 @@ static struct tap_or_hold_def {
 	bool pending;			/* pending action exists on timer */
 	enum tap_or_hold_state state;
 } tap_or_hold[] = {
-	THDEF(KC_F12, 0, KC_F, KC_BTN1),
+	THDEF(KC_EXEC, 0, KC_F, KC_BTN1),
 	THDEF(KC_F13, 0, KC_B, KC_P),
 	THDEF(KC_F14, 0, KC_L, KC_O),
 	THDEF(KC_F15, 0, KC_M, KC_Y),
