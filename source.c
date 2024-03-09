@@ -47,11 +47,11 @@ static struct sim_mod_key_def {
 	uint16_t timer;			/* timer on start */
 	bool pending;			/* pending action exists on timer */
 } sim_mod_key[] = {
-	SMDEF(KC_F20, KC_LALT, KC_1),
-	SMDEF(KC_F21, KC_LALT, KC_2),
-	SMDEF(KC_F22, KC_LALT, KC_3),
-	SMDEF(KC_F23, KC_LALT, KC_4),
-	SMDEF(KC_F24, KC_LALT, KC_5),
+	SMDEF(sALT1, KC_LALT, KC_1),
+	SMDEF(sALT2, KC_LALT, KC_2),
+	SMDEF(sALT3, KC_LALT, KC_3),
+	SMDEF(sALT4, KC_LALT, KC_4),
+	SMDEF(sALT5, KC_LALT, KC_5),
 };
 
 #define NSMDEFS	(sizeof(sim_mod_key) / sizeof(struct sim_mod_key_def))
@@ -133,14 +133,13 @@ static struct tap_or_hold_def {
 	bool pending;			/* pending action exists on timer */
 	enum tap_or_hold_state state;
 } tap_or_hold[] = {
-	THDEF(KC_EXEC, 0, KC_F, KC_BTN1),
-	THDEF(KC_F13, 0, KC_B, KC_P),
-	THDEF(KC_F14, 0, KC_L, KC_O),
-	THDEF(KC_F15, 0, KC_M, KC_Y),
-	THDEF(KC_F16, 0, KC_C, KC_G),
-	THDEF(KC_F17, 0, KC_J, KC_U),
-	THDEF(KC_F18, 0, KC_V, KC_V),
-	THDEF(KC_F19, KC_LALT, KC_ENT, 0),
+	THDEF(tFhBTN1, 0, KC_F, KC_BTN1),
+	THDEF(tBhP, 0, KC_B, KC_P),
+	THDEF(tChG, 0, KC_C, KC_G),
+	THDEF(tJhU, 0, KC_J, KC_U),
+	THDEF(tLhO, 0, KC_L, KC_O),
+	THDEF(tMhY, 0, KC_M, KC_Y),
+	THDEF(tENThALT, KC_LALT, KC_ENT, 0),
 };
 
 #define NTHDEFS	(sizeof(tap_or_hold) / sizeof(struct tap_or_hold_def))
@@ -293,8 +292,8 @@ static struct keymac_def {
 	bool pending;			/* pending action exists on timer */
 	enum keymac_state state;
 } keymac[] = {
-	KMDEF(KC_SLCT, machine_gun),
-	KMDEF(KC_F9, emacs_arg_arg_org_c_star),
+	KMDEF(mShot, machine_gun),
+	KMDEF(mEmacs, emacs_arg_arg_org_c_star),
 };
 
 #define NKMDEFS	(sizeof(keymac) / sizeof(struct keymac_def))
