@@ -12,9 +12,9 @@
 
 ## Motivations
 
-We can use this small keyboard immediately after purchasing it
+You can use this small keyboard immediately after purchasing it
 by using the included software to define your preferred key layout.
-For this reason, I think many people love using it for PC games.
+I think many people love using this for PC games.
 For a while, I also used the included software to play games
 such as the PC version of [Genshin Impact](https://genshin.hoyoverse.com/).
 
@@ -38,27 +38,18 @@ so I decided to try QMK.
 ## Keymap compression approach
 
 To reduce keymap layers, we need to assign multiple functions
-(command characters in games) to a single key.
+(command keys in games) to a single key.
 QMK tap dance and tap hold features are good options for this.
 Key combination of normal key and layer switching key is very unique.
 
-However, it seems that the use of custom key codes is restricted
-in the github user environment, so tap dance cannot be used,
-and tap hold can only be used in combination with modifier keys
-such as Shift and Ctrl.
+However, it seems that the key to hold can only be used
+in combination with modifier keys such as Shift and Ctrl.
 
 Therefore, I decided to rewrite the behavior of existing key codes that are not used.
 I used the following as a reference.
 
   - [Customizing Functionality](https://docs.qmk.fm/#/custom_quantum_functions)
   - [Macros](https://docs.qmk.fm/#/feature_macros)
-
-The key codes used are F13, F14,..., F24 function keys.
-I changed these by overriding the `process_record_user()` function.
-
-Note: Defining a macro in a *.json file,
-the `process_record_user()` function will result in a double definition error,
-so I have also implemented the Alt + number function.
 
 ## Simulated Modified key
 
@@ -101,35 +92,7 @@ Then, they will be released by actual key kc releasing.
 The second timing is the case of cancellation.
 If the key kc would be released within short time, no  kc2 will be pressed.
 
-The definition for implementation is shown below:
-
-```
-#define SM_TIMER	50
-
-#define SMDEF(pkc, pkc1, pkc2)						\
-	{								\
-		.kc = (pkc),						\
-		.kc1 = (pkc1),						\
-		.kc2 = (pkc2),						\
-		.pending = false,					\
-	}
-
-static struct sim_mod_key_def {
-	uint16_t kc;			/* keycode to sense */
-	uint16_t kc1;			/* modifier keycode */
-	uint16_t kc2;			/* target keycode */
-	uint16_t timer;			/* timer on start */
-	bool pending;			/* pending action exists on timer */
-} sim_mod_key[] = {
-	SMDEF(KC_F20, KC_LALT, KC_1),
-	SMDEF(KC_F21, KC_LALT, KC_2),
-	SMDEF(KC_F22, KC_LALT, KC_3),
-	SMDEF(KC_F23, KC_LALT, KC_4),
-	SMDEF(KC_F24, KC_LALT, KC_5),
-};
-```
-
-Any key combinations are possible, not just the Alt key.
+See [source.c](source.c) for more detail implementation.
 
 ## Tap or Hold stroking
 
@@ -180,49 +143,7 @@ to compress simple command keys such as menu screen calls.
 However, I think the benefits of compressing the number of keys
 to 1/2 of the conventional size are very great.
 
-Finally, the definition for implementation is shown below:
-
-```
-#define TH_TIMER	175
-#define TH_HOLD		20
-
-#define THDEF(pkc, pkc0, pkc1, pkc2)					\
-	{								\
-		.kc = (pkc),						\
-		.kc0 = (pkc0),						\
-		.kc1 = (pkc1),						\
-		.kc2 = (pkc2),						\
-		.state = TH_WAITING_PRESS,				\
-	}
-
-enum tap_or_hold_state {
-	TH_WAITING_PRESS,
-	TH_WAITING_RELEASE_OR_T1,
-	TH_WAITING_PRESS_OR_T2,
-	TH_WAITING_RELEASE_OR_T2,
-	TH_WAITING_RELEASE_FOR_KC1,
-	TH_WAITING_RELEASE_FOR_KC2,
-};
-
-static struct tap_or_hold_def {
-	uint16_t kc;			/* keycode to sense */
-	uint16_t kc0;			/* modifier keycode to emit */
-	uint16_t kc1;			/* primary keycode to emit */
-	uint16_t kc2;			/* secondary keycode to emit */
-	uint16_t timer;			/* timer on start */
-	bool pending;			/* pending action exists on timer */
-	enum tap_or_hold_state state;
-} tap_or_hold[] = {
-	THDEF(KC_EXEC, 0, KC_F, KC_BTN1),
-	THDEF(KC_F13, 0, KC_B, KC_P),
-	THDEF(KC_F14, 0, KC_L, KC_O),
-	THDEF(KC_F15, 0, KC_M, KC_Y),
-	THDEF(KC_F16, 0, KC_C, KC_G),
-	THDEF(KC_F17, 0, KC_J, KC_U),
-	THDEF(KC_F18, 0, KC_V, KC_V),
-	THDEF(KC_F19, KC_LALT, KC_ENT, 0),
-};
-```
+See [source.c](source.c) for more detail implementation.
 
 ## Latest keymap for Genshin Impact
 
