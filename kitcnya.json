@@ -104,7 +104,7 @@
       "KC_BTN1",
       "KC_MS_D",
       "KC_BTN2",
-      "KC_TRNS"
+      "TG(3)"
     ],
     [
       "RGB_M_P",
@@ -125,7 +125,7 @@
       "RGB_M_X",
       "RGB_M_G",
       "RGB_M_T",
-      "KC_TRNS",
+      "TG(4)",
       "KC_PWR",
       "KC_SLEP",
       "KC_WAKE",
