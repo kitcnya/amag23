@@ -12,6 +12,7 @@
  */
 
 #define LAYER_RGB_SETTING	2
+#define RGB_HUE_STEP	32
 
 void
 housekeeping_task_user(void)
@@ -19,49 +20,19 @@ housekeeping_task_user(void)
 	static uint8_t top_prev = LAYER_RGB_SETTING;
 	static uint8_t hue, sat, val;
 	uint8_t top = get_highest_layer(layer_state);
+
 	if (top != top_prev) {
 		if (top_prev == LAYER_RGB_SETTING) {
 			hue = rgblight_get_hue();
 			sat = rgblight_get_sat();
-			val = rgblight_get_sat();
+			val = rgblight_get_val();
 		}
-		switch (top) {
-		case 1:
-			rgblight_sethsv(HSV_BLUE);
-			break;
-		case 2:
-			rgblight_sethsv(HSV_AZURE);
-			break;
-		case 3:
-			rgblight_sethsv(HSV_CYAN);
-			break;
-		case 4:
-			rgblight_sethsv(HSV_SPRINGGREEN);
-			break;
-		case 5:
-			rgblight_sethsv(HSV_GREEN);
-			break;
-		case 6:
-			rgblight_sethsv(HSV_CHARTREUSE);
-			break;
-		case 7:
-			rgblight_sethsv(HSV_YELLOW);
-			break;
-		case 8:
-			rgblight_sethsv(HSV_RED);
-			break;
-		case 9:
-			rgblight_sethsv(HSV_PINK);
-			break;
-		case 10:
-			rgblight_sethsv(HSV_MAGENTA);
-			break;
-		case 12:
-			rgblight_sethsv(HSV_PURPLE);
-			break;
-		default:
-			rgblight_sethsv(hue, sat, val);
-			break;
+		if (top != LAYER_RGB_SETTING) {
+			uint8_t h = hue + RGB_HUE_STEP * top;
+			if (top > LAYER_RGB_SETTING) {
+				h -= RGB_HUE_STEP;
+			}
+			rgblight_sethsv(h, sat, val);
 		}
 		top_prev = top;
 	}
